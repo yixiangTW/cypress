@@ -2,8 +2,34 @@
 fileName: <%= fileName %>
 ---
 
+import { L10n } from '../i10n'
+
+const languageDropDown = {
+  self: '[aria-label="language"]',
+  languageMenu: `.dropdown-menu`
+}
+
+const verifyLocale = (locale) => {
+  if (locale) {
+    cy.log(`Curren locale is：${locale}`);
+    const t = L10n.commonMsg(locale)
+    // const t = L10n.specialMsg('SampleProduct', '1.0.0', 'SampleComponent', locale)
+    const url = 'https://console-stg.cloud.vmware.com/csp/gateway/discovery'
+    cy.visit({ url, headers: { 'Accept-Language': t('localeJs') }} )
+    changeLoginUiLanguageInPasswordPage(t('language'))
+
+  } else {
+    cy.log('Not found');
+  }
+}
+
+const changeLoginUiLanguageInPasswordPage = (language) => {
+  cy.get(languageDropDown.self).should('be.visible').click()
+  cy.get(languageDropDown.languageMenu).contains(language).click()
+}
+
 describe('template spec', () => {
   it('passes', () => {
-    cy.visit('https://example.cypress.io')
+    cy.getLocal().then(verifyLocale)
   })
 })

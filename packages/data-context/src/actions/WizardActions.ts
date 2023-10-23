@@ -4,6 +4,8 @@ import assert from 'assert'
 import path from 'path'
 import Debug from 'debug'
 import fs from 'fs-extra'
+import { exec } from 'child_process'
+import { LOCALE_DATA, Locale } from './LocaleOptions'
 
 const debug = Debug('cypress:data-context:wizard-actions')
 
@@ -191,6 +193,10 @@ export class WizardActions {
       this.scaffoldSupport('e2e', this.ctx.lifecycleManager.fileExtensionToUse),
       this.scaffoldSupport('commands', this.ctx.lifecycleManager.fileExtensionToUse),
       this.scaffoldFixtures(),
+      this.scaffoldI10n(),
+      ...Object.keys(LOCALE_DATA).map((locale) => this.scaffoldTranslationResource('common-messages', locale as Locale)),
+      ...Object.keys(LOCALE_DATA).map((locale) => this.scaffoldTranslationResource('common-messages/SampleProduct/1.0.0/SampleComponent', locale as Locale)),
+      this.scaffoldSh(),
     ])
 
     return scaffoldedFiles
@@ -212,6 +218,70 @@ export class WizardActions {
     ])
 
     return scaffoldedFiles
+  }
+
+  private async scaffoldTranslationResource (sourcePath: string, fileName: Locale): Promise<NexusGenObjects['ScaffoldedFile']> {
+    const supportFile = path.join(this.projectRoot, `cypress/${sourcePath}/${fileName}.json`)
+    const supportDir = path.dirname(supportFile)
+
+    // @ts-ignore
+    await this.ctx.fs.mkdir(supportDir, { recursive: true })
+
+    let fileContent = `${JSON.stringify(LOCALE_DATA[fileName], null, 2)}\n`
+    let description = ''
+
+    await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')
+
+    return {
+      status: 'valid',
+      description,
+      file: {
+        absolute: supportFile,
+      },
+    }
+  }
+
+  private async scaffoldI10n (): Promise<NexusGenObjects['ScaffoldedFile']> {
+    const supportFile = path.join(this.projectRoot, `cypress/i10n/index.${this.ctx.lifecycleManager.fileExtensionToUse}`)
+    const supportDir = path.dirname(supportFile)
+
+    // @ts-ignore
+    await this.ctx.fs.mkdir(supportDir, { recursive: true })
+
+    let fileContent = `${I10N_DATA}\n`
+    let description = 'Load from the translation resource'
+
+    await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')
+
+    return {
+      status: 'valid',
+      description,
+      file: {
+        absolute: supportFile,
+      },
+    }
+  }
+
+  private async scaffoldSh (): Promise<NexusGenObjects['ScaffoldedFile']> {
+    const supportFile = path.join(this.projectRoot, `run.sh`)
+    const supportDir = path.dirname(supportFile)
+
+    // @ts-ignore
+    await this.ctx.fs.mkdir(supportDir, { recursive: true })
+
+    let fileContent = `${SH_DATE}\n`
+    let description = 'Load from the translation resource'
+
+    await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')
+    exec(`chmod +x ${supportFile}`)
+
+    return {
+      status: 'valid',
+      description,
+      file: {
+        absolute: supportFile,
+      },
+    }
   }
 
   private async scaffoldSupport (fileName: 'e2e' | 'component' | 'commands', language: 'js' | 'ts'): Promise<NexusGenObjects['ScaffoldedFile']> {
@@ -391,3 +461,16 @@ const FIXTURE_DATA = {
   'email': 'hello@cypress.io',
   'body': 'Fixtures are a great way to mock data for responses to routes',
 }
+
+const I10N_DATA = `export const L10n = {
+  commonMsg: (locale) => {
+    const _SOURCE = require(\`../common-messages/\${locale}.json\`);
+    return (key) => _SOURCE[key];
+  },
+  specialMsg: (product, version, component, locale) => {
+    const _SOURCE = require(\`../common-messages/\${product}/\${version}/\${component}/\${locale}.json\`);
+    return (key) => _SOURCE[key];
+  }
+};`
+
+const SH_DATE = `npx cypress run --env locale=zh-Hans`

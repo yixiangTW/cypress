@@ -16,6 +16,9 @@ export function addE2EDefinition (): t.ObjectProperty {
   return extractProperty(`
     const toMerge = {
       e2e: {
+        env: {
+          locale: 'zh-Hans'
+        },
         setupNodeEvents(on, config) {
           // implement node event listeners here
         },

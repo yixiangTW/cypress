@@ -85,6 +85,35 @@
         data-cy="viewport"
       >
         <template #heading>
+          <i-cy-command-key_x16 class="icon-dark-gray-500 icon-light-gray-400" />
+          <span class="whitespace-nowrap">{{ selectedLanguage.language }}</span>
+          <span
+            class="ml-[-6px] text-gray-500"
+          >
+            ({{ selectedLanguage.locale }})
+          </span>
+        </template>
+        <template #default>
+          <div class="max-h-50vw p-[12px] pt-5 text-gray-700 leading-5 w-[346px] overflow-auto">
+            <div
+              v-for="(value, key) in LOCALE_DATA"
+              :key="key"
+              class="inline-flex mr-1 mt-3 cursor-pointer"
+              @click="changeLanguage({locale: key, language: value.language})"
+            >
+              <status-badge
+                :status="key === selectedLanguage.locale"
+                :title="value?.language"
+              />
+            </div>
+          </div>
+        </template>
+      </SpecRunnerDropdown>
+      <SpecRunnerDropdown
+        variant="panel"
+        data-cy="viewport"
+      >
+        <template #heading>
           <i-cy-ruler_x16 class="icon-dark-gray-500 icon-light-gray-400" />
           <span class="whitespace-nowrap">{{ autStore.viewportWidth }}x{{ autStore.viewportHeight }}</span>
           <span
@@ -164,8 +193,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref, watchEffect, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAutStore, useSpecStore, useSelectorPlaygroundStore } from '../store'
 import { useAutHeader } from './useAutHeader'
 import { gql } from '@urql/vue'
@@ -178,6 +207,7 @@ import SelectorPlayground from './selector-playground/SelectorPlayground.vue'
 import ExternalLink from '@packages/frontend-shared/src/gql-components/ExternalLink.vue'
 import Alert from '@packages/frontend-shared/src/components/Alert.vue'
 import Button from '@packages/frontend-shared/src/components/Button.vue'
+import StatusBadge from '@packages/frontend-shared/src/gql-components/StatusBadge.vue'
 import StudioControls from './studio/StudioControls.vue'
 import StudioUrlPrompt from './studio/StudioUrlPrompt.vue'
 import VerticalBrowserListItems from '@packages/frontend-shared/src/gql-components/topnav/VerticalBrowserListItems.vue'
@@ -186,6 +216,7 @@ import SpecRunnerDropdown from './SpecRunnerDropdown.vue'
 import { allBrowsersIcons } from '@packages/frontend-shared/src/assets/browserLogos'
 import BookIcon from '~icons/cy/book_x16'
 import { useStudioStore } from '../store/studio-store'
+import { LOCALE_DATA, Locale } from '@packages/data-context/src/actions/LocaleOptions'
 
 gql`
 fragment SpecRunnerHeader on CurrentProject {
@@ -208,6 +239,7 @@ const autStore = useAutStore()
 
 const specStore = useSpecStore()
 
+const router = useRouter()
 const route = useRoute()
 
 const studioStore = useStudioStore()
@@ -251,6 +283,12 @@ const togglePlayground = () => _togglePlayground(autIframe)
 // Have to spread gql props since binding it to v-model causes error when testing
 const selectedBrowser = ref({ ...props.gql.activeBrowser })
 
+const defaultLocale: Locale = 'zh-Hans'
+
+const selectedLanguage = ref({
+  locale: defaultLocale,
+  language: LOCALE_DATA[defaultLocale].language,
+})
 const activeSpecPath = specStore.activeSpec?.absolute
 
 const isDisabled = computed(() => autStore.isRunning || autStore.isLoading)
@@ -259,6 +297,15 @@ function setStudioUrl (event: Event) {
   const url = (event.currentTarget as HTMLInputElement).value
 
   urlInProgress.value = url
+}
+
+watch(selectedLanguage, (newSelected) => {
+  window.localStorage.setItem('locale', newSelected.locale)
+  router.push({ query: { ...route.query, locale: newSelected.locale } })
+}, { immediate: true })
+
+function changeLanguage (lan) {
+  selectedLanguage.value = lan
 }
 
 function visitUrl () {
