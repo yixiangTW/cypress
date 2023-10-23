@@ -65,6 +65,48 @@
               class="ml-[4px] transform transition-transform ease-in translate-y-[-1px] duration-200 inline-block icon-dark-current group-hocus:translate-x-[2px]"
             />
           </button>
+          <Disclosure
+            v-for="section in filters"
+            :key="section.id"
+            v-slot="{ open }"
+            as="div"
+            class="border-t border-gray-200 px-4 py-6 w-1/3 mx-auto my-auto overflow-y-scroll mt-5"
+          >
+            <h3 class="-mx-2 -my-3 flow-root">
+              <DisclosureButton class="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
+                <span class="font-medium text-gray-900">{{ section.name }}</span>
+                <span class="ml-6 flex items-center">
+                  <i-cy-chevron-right_x16
+                    class="h-[16px] w-[16px] icon-dark-indigo-400"
+                    :class="open ? 'transform rotate-90': ''"
+                  />
+                </span>
+              </DisclosureButton>
+            </h3>
+            <DisclosurePanel class="pt-6">
+              <div class="space-y-6">
+                <div
+                  v-for="(option, optionIdx) in section.options"
+                  :key="option.value"
+                  class="flex items-center"
+                >
+                  <input
+                    :id="`filter-mobile-${section.id}-${optionIdx}`"
+                    v-model="option.checked"
+                    :name="`${section.id}[]`"
+                    :value="option.value"
+                    type="checkbox"
+                    :checked="option.checked"
+                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  >
+                  <label
+                    :for="`filter-mobile-${section.id}-${optionIdx}`"
+                    class="ml-3 min-w-0 flex-1 text-gray-500"
+                  >{{ option.label }}</label>
+                </div>
+              </div>
+            </DisclosurePanel>
+          </Disclosure>
           <TestingTypeCards
             :gql="query.data.value"
           />
@@ -106,14 +148,20 @@ import MigrationWizard from './migration/MigrationWizard.vue'
 import ScaffoldedFiles from './setup/ScaffoldedFiles.vue'
 import MajorVersionWelcome from './migration/MajorVersionWelcome.vue'
 import { useI18n } from '@cy/i18n'
-import { computed, ref } from 'vue'
+import { computed, ref, watch, reactive } from 'vue'
 import LaunchpadHeader from './setup/LaunchpadHeader.vue'
 import OpenBrowser from './setup/OpenBrowser.vue'
 import LoginConnectModals from '@cy/gql-components/LoginConnectModals.vue'
 import CloudViewerAndProject from '@cy/gql-components/CloudViewerAndProject.vue'
 import { usePromptManager } from '@cy/gql-components/composables/usePromptManager'
 import { MAJOR_VERSION_FOR_CONTENT } from '@packages/types'
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from '@headlessui/vue'
 
+import { LOCALE_DATA } from '@packages/data-context/src/actions/LocaleOptions'
 const { setMajorVersionWelcomeDismissed } = usePromptManager()
 const { t } = useI18n()
 const isTestingTypeModalOpen = ref(false)
@@ -227,6 +275,28 @@ const shouldShowWelcome = computed(() => {
 
 const videoHtml = computed(() => query.data.value?.videoEmbedHtml || '')
 
+const filters = reactive([
+  {
+    id: 'size',
+    name: 'Please select language',
+    options: Object.keys(LOCALE_DATA).map((locale) => {
+      return {
+        value: locale,
+        label: LOCALE_DATA[locale].language,
+        checked: true,
+      }
+    }),
+  },
+])
+
+watch(filters, (newValue) => {
+  Object.keys(LOCALE_DATA).forEach((locale) => {
+    //@ts-ignore
+    LOCALE_DATA[locale].check = newValue[0].options.find((item) => item.value === locale).checked
+  })
+
+  window.localStorage.setItem('create', JSON.stringify(LOCALE_DATA))
+})
 </script>
 <style scoped lang="scss">
 .major-version-welcome-video {
