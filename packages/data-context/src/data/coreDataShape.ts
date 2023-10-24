@@ -141,6 +141,7 @@ interface CloudDataShape {
 }
 
 export interface CoreDataShape {
+  initLocales: string | null
   cliBrowser: string | null
   cliTestingType: string | null
   activeBrowser: FoundBrowser | null
@@ -178,6 +179,7 @@ export interface CoreDataShape {
  */
 export function makeCoreData (modeOptions: Partial<AllModeOptions> = {}): CoreDataShape {
   return {
+    initLocales: modeOptions.config?.initLocales ?? null,
     servers: {},
     cliBrowser: modeOptions.browser ?? null,
     cliTestingType: modeOptions.testingType ?? null,

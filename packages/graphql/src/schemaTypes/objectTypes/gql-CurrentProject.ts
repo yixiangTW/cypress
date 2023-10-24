@@ -38,6 +38,11 @@ export const CurrentProject = objectType({
       description: 'Whether or not the full config is ready',
     })
 
+    t.string('initLocales', {
+      description: 'InitLocales',
+      resolve: (source, args, ctx) => ctx.coreData.initLocales,
+    })
+
     t.boolean('hasNonExampleSpec', {
       description: 'Whether the project has any specs found that do not match an example spec',
       resolve: (_, args, ctx) => ctx.project.hasNonExampleSpec,

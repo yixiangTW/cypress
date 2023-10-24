@@ -94,10 +94,11 @@ export interface AddTestingTypeToCypressConfigOptions {
     testingType: 'e2e'
   }
   projectRoot: string
+  defaultLocale: string
 }
 
 export async function addTestingTypeToCypressConfig (options: AddTestingTypeToCypressConfigOptions): Promise<AddToCypressConfigResult> {
-  const toAdd = options.info.testingType === 'e2e' ? addE2EDefinition() : addComponentDefinition(options.info)
+  const toAdd = options.info.testingType === 'e2e' ? addE2EDefinition(options.defaultLocale) : addComponentDefinition(options.info)
 
   try {
     let result: string | undefined = undefined

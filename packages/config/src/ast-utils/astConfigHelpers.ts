@@ -12,12 +12,12 @@ import assert from 'assert'
  *   }
  * }
  */
-export function addE2EDefinition (): t.ObjectProperty {
+export function addE2EDefinition (defaultLocale: string): t.ObjectProperty {
   return extractProperty(`
     const toMerge = {
       e2e: {
         env: {
-          locale: 'zh-Hans'
+          locale: \'${defaultLocale.trim()}\'
         },
         setupNodeEvents(on, config) {
           // implement node event listeners here

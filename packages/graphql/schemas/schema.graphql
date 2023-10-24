@@ -1021,6 +1021,9 @@ type CurrentProject implements Node & ProjectLike {
   """Relay style Node ID field for the CurrentProject field"""
   id: ID!
 
+  """InitLocales"""
+  initLocales: String
+
   """Whether the user configured this project to use Component Testing"""
   isCTConfigured: Boolean
 

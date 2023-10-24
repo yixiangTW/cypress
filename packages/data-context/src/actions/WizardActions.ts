@@ -186,7 +186,22 @@ export class WizardActions {
     })
   }
 
+  private setInitLocalesList () {
+    const configLocales = this.ctx.coreData.initLocales
+
+    if (configLocales) {
+      return Object.keys(LOCALE_DATA).filter((locale) => configLocales.split(' ').includes(locale))
+    }
+
+    return Object.keys(LOCALE_DATA)
+  }
+
+  private setDefaultLocale () {
+    return this.setInitLocalesList()[0] as string
+  }
+
   private async scaffoldE2E () {
+    const initLocalesList = this.setInitLocalesList()
     // Order of the scaffoldedFiles is intentional, confirm before changing
     const scaffoldedFiles = await Promise.all([
       this.scaffoldConfig('e2e'),
@@ -194,8 +209,8 @@ export class WizardActions {
       this.scaffoldSupport('commands', this.ctx.lifecycleManager.fileExtensionToUse),
       this.scaffoldFixtures(),
       this.scaffoldI10n(),
-      ...Object.keys(LOCALE_DATA).map((locale) => this.scaffoldTranslationResource('common-messages', locale as Locale)),
-      ...Object.keys(LOCALE_DATA).map((locale) => this.scaffoldTranslationResource('common-messages/SampleProduct/1.0.0/SampleComponent', locale as Locale)),
+      ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages', locale as Locale)),
+      ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages/SampleProduct/1.0.0/SampleComponent', locale as Locale)),
       this.scaffoldSh(),
     ])
 
@@ -269,7 +284,7 @@ export class WizardActions {
     // @ts-ignore
     await this.ctx.fs.mkdir(supportDir, { recursive: true })
 
-    let fileContent = `${SH_DATE}\n`
+    let fileContent = SH_DATE(this.setDefaultLocale())
     let description = 'Load from the translation resource'
 
     await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')
@@ -343,6 +358,7 @@ export class WizardActions {
       filePath: configFilePath,
       info: testingTypeInfo,
       projectRoot: this.projectRoot,
+      defaultLocale: this.setDefaultLocale(),
     })
 
     const description = (testingType === 'e2e')
@@ -473,4 +489,4 @@ const I10N_DATA = `export const L10n = {
   }
 };`
 
-const SH_DATE = `npx cypress run --env locale=zh-Hans`
+const SH_DATE = (local: string) => `npx cypress run --env locale=${local}\n`

@@ -96,7 +96,7 @@
         <template #default>
           <div class="max-h-50vw p-[12px] pt-5 text-gray-700 leading-5 w-[346px] overflow-auto">
             <div
-              v-for="(value, key) in LOCALE_DATA"
+              v-for="(value, key) in renderLocaleList"
               :key="key"
               class="inline-flex mr-1 mt-3 cursor-pointer"
               @click="changeLanguage({locale: key, language: value.language})"
@@ -195,6 +195,7 @@
 <script lang="ts" setup>
 import { computed, ref, watchEffect, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import _ from 'lodash'
 import { useAutStore, useSpecStore, useSelectorPlaygroundStore } from '../store'
 import { useAutHeader } from './useAutHeader'
 import { gql } from '@urql/vue'
@@ -221,6 +222,7 @@ import { LOCALE_DATA, Locale } from '@packages/data-context/src/actions/LocaleOp
 gql`
 fragment SpecRunnerHeader on CurrentProject {
   id
+  initLocales
   configFile
   currentTestingType
   activeBrowser {
@@ -280,15 +282,26 @@ const selectorPlaygroundStore = useSelectorPlaygroundStore()
 
 const togglePlayground = () => _togglePlayground(autIframe)
 
+const renderLocaleList = (() => {
+  if (props.gql.initLocales) {
+    const keys = props.gql.initLocales.split(' ')
+
+    return _.pick(LOCALE_DATA, keys as Locale[])
+  }
+
+  return LOCALE_DATA
+})()
+
 // Have to spread gql props since binding it to v-model causes error when testing
 const selectedBrowser = ref({ ...props.gql.activeBrowser })
 
-const defaultLocale: Locale = 'zh-Hans'
+const defaultLocale = Object.keys(renderLocaleList)[0]
 
 const selectedLanguage = ref({
   locale: defaultLocale,
   language: LOCALE_DATA[defaultLocale].language,
 })
+
 const activeSpecPath = specStore.activeSpec?.absolute
 
 const isDisabled = computed(() => autStore.isRunning || autStore.isLoading)
@@ -300,8 +313,9 @@ function setStudioUrl (event: Event) {
 }
 
 watch(selectedLanguage, (newSelected) => {
-  window.localStorage.setItem('locale', newSelected.locale)
-  router.push({ query: { ...route.query, locale: newSelected.locale } })
+  if (newSelected) {
+    router.push({ query: { ...route.query, locale: newSelected.locale } })
+  }
 }, { immediate: true })
 
 function changeLanguage (lan) {
