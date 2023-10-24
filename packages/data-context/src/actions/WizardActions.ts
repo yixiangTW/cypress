@@ -481,11 +481,11 @@ const FIXTURE_DATA = {
 const I10N_DATA = `export const L10n = {
   commonMsg: (locale) => {
     const _SOURCE = require(\`../common-messages/\${locale}.json\`);
-    return (key) => findValue(_SOURCE, key);
+    return (key) => L10n.findValue(_SOURCE, key);
   },
   specialMsg: (product, version, component, locale) => {
     const _SOURCE = require(\`../common-messages/\${product}/\${version}/\${component}/\${locale}.json\`);
-    return (key) => findValue(_SOURCE, key);
+    return (key) => L10n.findValue(_SOURCE, key);
   },
   findValue: (source, key) => {
     if (source.hasOwnProperty(key)) {
@@ -494,7 +494,7 @@ const I10N_DATA = `export const L10n = {
 
     for (const prop in source) {
       if (typeof source[prop] === 'object') {
-        const result = findValue(source[prop], key);
+        const result = L10n.findValue(source[prop], key);
         if (result !== undefined) {
           return result;
         }
