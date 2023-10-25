@@ -66,15 +66,13 @@
             />
           </button>
           <Disclosure
-            v-for="section in filters"
-            :key="section.id"
             v-slot="{ open }"
             as="div"
-            class="border-t border-gray-200 px-4 py-6 w-1/3 mx-auto my-auto overflow-y-scroll mt-5"
+            class="border-dashed border border-gray-200 px-4 py-6 mx-auto my-auto overflow-y-scroll mt-5 max-h-96"
           >
             <h3 class="-mx-2 -my-3 flow-root">
-              <DisclosureButton class="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
-                <span class="font-medium text-gray-900">{{ section.name }}</span>
+              <DisclosureButton class="flex w-full items-center justify-center bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
+                <span class="font-medium text-gray-900">{{ 'Select the initialization languages' }}</span>
                 <span class="ml-6 flex items-center">
                   <i-cy-chevron-right_x16
                     class="h-[16px] w-[16px] icon-dark-indigo-400"
@@ -83,25 +81,24 @@
                 </span>
               </DisclosureButton>
             </h3>
-            <DisclosurePanel class="pt-6">
+            <DisclosurePanel class="pt-6 w-32 mx-auto">
               <div class="space-y-6">
                 <div
-                  v-for="(option, optionIdx) in section.options"
+                  v-for="(option, optionIdx) in localeFilters"
                   :key="option.value"
                   class="flex items-center"
                 >
                   <input
-                    :id="`filter-mobile-${section.id}-${optionIdx}`"
-                    v-model="option.checked"
-                    :name="`${section.id}[]`"
+                    :id="`${optionIdx}`"
+                    :checked="option.checked"
                     :value="option.value"
                     type="checkbox"
-                    :checked="option.checked"
                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    @change="handleChange"
                   >
                   <label
-                    :for="`filter-mobile-${section.id}-${optionIdx}`"
-                    class="ml-3 min-w-0 flex-1 text-gray-500"
+                    :for="`${optionIdx}`"
+                    class="ml-3 min-w-0 text-gray-500"
                   >{{ option.label }}</label>
                 </div>
               </div>
@@ -134,7 +131,7 @@
 
 <script lang="ts" setup>
 import { gql, useMutation, useQuery } from '@urql/vue'
-import { MainLaunchpadQueryDocument, Main_ResetErrorsAndLoadConfigDocument, Main_LaunchProjectDocument } from './generated/graphql'
+import { MainLaunchpadQueryDocument, Main_ResetErrorsAndLoadConfigDocument, Main_LaunchProjectDocument, Main_ResetInitLocalesDocument } from './generated/graphql'
 import TestingTypeCards from './setup/TestingTypeCards.vue'
 import Wizard from './setup/Wizard.vue'
 import GlobalPage from './global/GlobalPage.vue'
@@ -148,7 +145,7 @@ import MigrationWizard from './migration/MigrationWizard.vue'
 import ScaffoldedFiles from './setup/ScaffoldedFiles.vue'
 import MajorVersionWelcome from './migration/MajorVersionWelcome.vue'
 import { useI18n } from '@cy/i18n'
-import { computed, ref, watch, reactive } from 'vue'
+import { computed, ref } from 'vue'
 import LaunchpadHeader from './setup/LaunchpadHeader.vue'
 import OpenBrowser from './setup/OpenBrowser.vue'
 import LoginConnectModals from '@cy/gql-components/LoginConnectModals.vue'
@@ -182,6 +179,7 @@ fragment MainLaunchpadQueryData on Query {
   }
   currentProject {
     id
+    initLocales
     isCTConfigured
     isE2EConfigured
     isLoadingConfigFile
@@ -229,8 +227,17 @@ mutation Main_LaunchProject ($testingType: TestingTypeEnum!)  {
 }
 `
 
+gql`
+mutation Main_ResetInitLocales($initLocales: String!) {
+  setProjectInitLocales(initLocales: $initLocales) {
+    ...MainLaunchpadQueryData
+  }
+}
+`
+
 const mutation = useMutation(Main_ResetErrorsAndLoadConfigDocument)
 const launchProject = useMutation(Main_LaunchProjectDocument)
+const localesMutation = useMutation(Main_ResetInitLocalesDocument)
 
 const resetErrorAndLoadConfig = (id: string) => {
   if (!mutation.fetching.value) {
@@ -275,28 +282,36 @@ const shouldShowWelcome = computed(() => {
 
 const videoHtml = computed(() => query.data.value?.videoEmbedHtml || '')
 
-const filters = reactive([
-  {
-    id: 'size',
-    name: 'Please select language',
-    options: Object.keys(LOCALE_DATA).map((locale) => {
-      return {
-        value: locale,
-        label: LOCALE_DATA[locale].language,
-        checked: true,
-      }
-    }),
-  },
-])
+const localeFilters = computed(() => {
+  let currentCheckedLocales: string[] = []
 
-watch(filters, (newValue) => {
-  Object.keys(LOCALE_DATA).forEach((locale) => {
-    //@ts-ignore
-    LOCALE_DATA[locale].check = newValue[0].options.find((item) => item.value === locale).checked
+  if (query.data.value?.currentProject?.initLocales) {
+    currentCheckedLocales = query.data.value?.currentProject?.initLocales.split(' ')
+  } else {
+    currentCheckedLocales = Object.keys(LOCALE_DATA)
+  }
+
+  return Object.keys(LOCALE_DATA).map((locale) => {
+    return {
+      value: locale,
+      label: LOCALE_DATA[locale].language,
+      checked: currentCheckedLocales.indexOf(locale) !== -1,
+    }
   })
-
-  window.localStorage.setItem('create', JSON.stringify(LOCALE_DATA))
 })
+
+const handleChange = (e) => {
+  const _initLocales = query.data.value?.currentProject?.initLocales?.split(' ') || Object.keys(LOCALE_DATA)
+
+  if (e.target.checked) {
+    _initLocales.push(e.target.value)
+    localesMutation.executeMutation({ initLocales: _initLocales.join(' ') })
+  } else {
+    _initLocales.splice(_initLocales.indexOf(e.target.value), 1)
+    localesMutation.executeMutation({ initLocales: _initLocales.join(' ') })
+  }
+}
+
 </script>
 <style scoped lang="scss">
 .major-version-welcome-video {

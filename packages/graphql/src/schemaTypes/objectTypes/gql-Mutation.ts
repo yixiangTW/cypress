@@ -357,6 +357,19 @@ export const mutation = mutationType({
       },
     })
 
+    t.nonNull.field('setProjectInitLocales', {
+      type: Query,
+      description: 'Set initLocales to run tests on',
+      args: {
+        initLocales: nonNull(stringArg()),
+      },
+      async resolve (_, args, ctx) {
+        await ctx.actions.project.setProjectInitLocales(args.initLocales)
+
+        return {}
+      },
+    })
+
     // TODO: #23202 hopefully we can stop using this for project data, and use `setPreferences` instead
     t.nonNull.field('setProjectPreferencesInGlobalCache', {
       type: Query,

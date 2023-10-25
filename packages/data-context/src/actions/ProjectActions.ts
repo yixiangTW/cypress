@@ -156,6 +156,10 @@ export class ProjectActions {
     await this.ctx.lifecycleManager.setCurrentProject(projectRoot)
   }
 
+  setProjectInitLocales (initLocales: string) {
+    this.ctx.coreData.initLocales = initLocales
+  }
+
   // Temporary: remove after other refactor lands
   async setCurrentProjectAndTestingTypeForTestSetup (projectRoot: string) {
     await this.ctx.lifecycleManager.clearCurrentProject()

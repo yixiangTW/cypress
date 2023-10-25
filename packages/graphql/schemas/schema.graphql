@@ -1819,6 +1819,9 @@ type Mutation {
   """Set the projectId field in the config file of the current project"""
   setProjectIdInConfigFile(projectId: String!): Query
 
+  """Set initLocales to run tests on"""
+  setProjectInitLocales(initLocales: String!): Query!
+
   """
   Save the projects preferences to cache, e.g. in dev: Library/Application Support/Cypress/cy/staging/cache
   """
