@@ -68,7 +68,7 @@
           <Disclosure
             v-slot="{ open }"
             as="div"
-            class="border-dashed border border-gray-200 px-4 py-6 mx-auto my-auto overflow-y-scroll mt-5 max-h-96"
+            class="border-dashed border w-1/3 border-gray-200 px-4 py-6 mx-auto my-auto overflow-y-scroll mt-5 max-h-96"
           >
             <h3 class="-mx-2 -my-3 flow-root">
               <DisclosureButton class="flex w-full items-center justify-center bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
@@ -132,6 +132,7 @@
 <script lang="ts" setup>
 import { gql, useMutation, useQuery } from '@urql/vue'
 import { MainLaunchpadQueryDocument, Main_ResetErrorsAndLoadConfigDocument, Main_LaunchProjectDocument, Main_ResetInitLocalesDocument } from './generated/graphql'
+import { useToast } from 'vue-toastification'
 import TestingTypeCards from './setup/TestingTypeCards.vue'
 import Wizard from './setup/Wizard.vue'
 import GlobalPage from './global/GlobalPage.vue'
@@ -162,6 +163,8 @@ import { LOCALE_DATA } from '@packages/data-context/src/actions/LocaleOptions'
 const { setMajorVersionWelcomeDismissed } = usePromptManager()
 const { t } = useI18n()
 const isTestingTypeModalOpen = ref(false)
+
+const toast = useToast()
 
 gql`
 fragment MainLaunchpadQueryData on Query {
@@ -305,10 +308,14 @@ const handleChange = (e) => {
 
   if (e.target.checked) {
     _initLocales.push(e.target.value)
-    localesMutation.executeMutation({ initLocales: _initLocales.join(' ') })
+    localesMutation.executeMutation({ initLocales: _initLocales.join(' ') }).then(() => {
+      toast.success(`Add ${LOCALE_DATA[e.target.value].language} ${e.target.value}`, { timeout: 1500 })
+    })
   } else {
     _initLocales.splice(_initLocales.indexOf(e.target.value), 1)
-    localesMutation.executeMutation({ initLocales: _initLocales.join(' ') })
+    localesMutation.executeMutation({ initLocales: _initLocales.join(' ') }).then(() => {
+      toast.warning(`Delete ${LOCALE_DATA[e.target.value].language} ${e.target.value}`, { timeout: 1500 })
+    })
   }
 }
 
