@@ -17,7 +17,8 @@ export function addE2EDefinition (defaultLocale: string): t.ObjectProperty {
     const toMerge = {
       e2e: {
         env: {
-          locale: \'${defaultLocale.trim()}\'
+          locale: \'${defaultLocale.trim()}\',
+          superString: 'あア１ａ中鷗屢简ÖÜß體₩겨ㅊĐứсηñçüÜÓÇÁÑ¿¡n°€',
         },
         setupNodeEvents(on, config) {
           // implement node event listeners here

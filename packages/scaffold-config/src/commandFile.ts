@@ -43,6 +43,7 @@ export function commandsFileBody (language: CodeLanguage['type']) {
     //
     // -- This will overwrite an existing command --
     // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+    // -- This is g11n verification --
     Cypress.Commands.add('getLocal', () => {
       if (Cypress.config('isInteractive')) {
         const urlParams = new URLSearchParams(window.top.location.hash);

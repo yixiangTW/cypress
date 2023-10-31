@@ -5,7 +5,7 @@ import path from 'path'
 import Debug from 'debug'
 import fs from 'fs-extra'
 import { exec } from 'child_process'
-import { LOCALE_DATA, Locale } from './LocaleOptions'
+import { LOCALE_DATA, Locale, SAMPLE_DATA } from './LocaleOptions'
 
 const debug = Debug('cypress:data-context:wizard-actions')
 
@@ -212,6 +212,7 @@ export class WizardActions {
       ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages', locale as Locale)),
       ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages/SampleProduct/1.0.0/SampleComponent', locale as Locale)),
       this.scaffoldSh(),
+      this.scaffoldBat(),
     ])
 
     return scaffoldedFiles
@@ -242,7 +243,7 @@ export class WizardActions {
     // @ts-ignore
     await this.ctx.fs.mkdir(supportDir, { recursive: true })
 
-    let fileContent = `${JSON.stringify(LOCALE_DATA[fileName], null, 2)}\n`
+    let fileContent = sourcePath.indexOf('SampleComponent') !== -1 ? `${JSON.stringify(SAMPLE_DATA[fileName], null, 2)}\n` : `${JSON.stringify(LOCALE_DATA[fileName], null, 2)}\n`
     let description = ''
 
     await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')
@@ -264,6 +265,27 @@ export class WizardActions {
     await this.ctx.fs.mkdir(supportDir, { recursive: true })
 
     let fileContent = `${I10N_DATA}\n`
+    let description = 'Load from the translation resource'
+
+    await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')
+
+    return {
+      status: 'valid',
+      description,
+      file: {
+        absolute: supportFile,
+      },
+    }
+  }
+
+  private async scaffoldBat (): Promise<NexusGenObjects['ScaffoldedFile']> {
+    const supportFile = path.join(this.projectRoot, `run.bat`)
+    const supportDir = path.dirname(supportFile)
+
+    // @ts-ignore
+    await this.ctx.fs.mkdir(supportDir, { recursive: true })
+
+    let fileContent = SH_DATE(this.setDefaultLocale())
     let description = 'Load from the translation resource'
 
     await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')
