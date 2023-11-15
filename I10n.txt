@@ -1,0 +1,53 @@
+Directory
+
+- run.sh 
+Shell run example
+
+- cypress.config.js
+The environment variable locale will be generated here
+
+- cypress/common-message/*.json
+Common translation
+
+- cypress/common-message/SampleProduct/1.0.0/SampleComponet/*.json
+Special translation
+
+- cypress/e2e/spec.cy.js
+Default e2e test demo with multi language
+
+- cypress/i10n
+Provides methods to load translation resources
+
+- cypress/support/commands.js
+Created a global method to get the current locale
+
+
+Initialize:
+
+- `yarn run dev` 
+Generate default all translation files, and display all the switch language buttons on the test page
+run.sh default locale is the first default locale
+In cypress.config.js, the locale environment variable is the first by default
+
+
+- `yarn run dev --config initLocales='zh-Hans en ja'’
+Generates the specified translation file and switch language buttons on the test page
+run.sh default locale is the first specified locale 
+In cypress.config.js the locale environment variable is first of the initLocales
+
+The locale types are 'zh-Hans' | 'ja' | 'de' | 'es' | 'fr' | 'ko' | 'zh-Hant' | 'it' | 'en'
+
+Run:
+
+- run mode 
+`yarn cypress:run --project /Users/yixiang/learnCypress/demo --env locale=zh-Hans`
+
+- open mode
+
+
+Todo:
+
+
+
+nvm use 18.15.0
+
