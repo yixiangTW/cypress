@@ -196,7 +196,6 @@
 <script lang="ts" setup>
 import { computed, ref, watchEffect, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import _ from 'lodash'
 import { useAutStore, useSpecStore, useSelectorPlaygroundStore } from '../store'
 import { useAutHeader } from './useAutHeader'
 import { gql } from '@urql/vue'
@@ -218,12 +217,15 @@ import SpecRunnerDropdown from './SpecRunnerDropdown.vue'
 import { allBrowsersIcons } from '@packages/frontend-shared/src/assets/browserLogos'
 import BookIcon from '~icons/cy/book_x16'
 import { useStudioStore } from '../store/studio-store'
-import { LOCALE_DATA, Locale } from '@packages/data-context/src/actions/LocaleOptions'
 
 gql`
 fragment SpecRunnerHeader on CurrentProject {
   id
   initLocales
+  initLocaleOptions {
+    locale
+    language
+  }
   configFile
   currentTestingType
   activeBrowser {
@@ -284,13 +286,21 @@ const selectorPlaygroundStore = useSelectorPlaygroundStore()
 const togglePlayground = () => _togglePlayground(autIframe)
 
 const renderLocaleList = (() => {
+  const ret = {}
+
   if (props.gql.initLocales) {
     const keys = props.gql.initLocales.split(' ')
+    const initLocaleOption = props.gql.initLocaleOptions || []
 
-    return _.pick(LOCALE_DATA, keys as Locale[])
+    initLocaleOption?.filter((i) => keys.indexOf(i?.locale as string) !== -1).map((i) => {
+      ret[i?.locale as string] = {
+        locale: i?.locale,
+        language: i?.language,
+      }
+    })
   }
 
-  return {}
+  return ret
 })()
 
 // Have to spread gql props since binding it to v-model causes error when testing
@@ -300,7 +310,7 @@ const defaultLocale = Object.keys(renderLocaleList)[0]
 
 const selectedLanguage = ref({
   locale: defaultLocale,
-  language: defaultLocale && LOCALE_DATA[defaultLocale].language,
+  language: defaultLocale && props.gql.initLocaleOptions?.find((i) => i?.locale === defaultLocale)?.language,
 })
 
 const activeSpecPath = specStore.activeSpec?.absolute

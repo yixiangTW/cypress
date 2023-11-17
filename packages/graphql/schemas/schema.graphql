@@ -1021,6 +1021,9 @@ type CurrentProject implements Node & ProjectLike {
   """Relay style Node ID field for the CurrentProject field"""
   id: ID!
 
+  """InitLocaleOptions"""
+  initLocaleOptions: [InitLocaleOption]
+
   """InitLocales"""
   initLocales: String
 
@@ -1409,6 +1412,11 @@ type GlobalProject implements Node & ProjectLike {
   """Absolute path to the project on the filesystem"""
   projectRoot: String!
   title: String!
+}
+
+type InitLocaleOption {
+  language: String
+  locale: String
 }
 
 """

@@ -140,7 +140,13 @@ interface CloudDataShape {
   }
 }
 
+interface InitLocaleOption {
+  locale: string
+  language: string
+}
+
 export interface CoreDataShape {
+  initLocaleOptions: InitLocaleOption[] | null
   initLocales: string | null
   cliBrowser: string | null
   cliTestingType: string | null
@@ -179,6 +185,7 @@ export interface CoreDataShape {
  */
 export function makeCoreData (modeOptions: Partial<AllModeOptions> = {}): CoreDataShape {
   return {
+    initLocaleOptions: modeOptions.config?.initLocaleOptions ?? null,
     initLocales: modeOptions.config?.initLocales ?? null,
     servers: {},
     cliBrowser: modeOptions.browser ?? null,

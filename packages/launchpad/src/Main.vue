@@ -66,6 +66,7 @@
             />
           </button>
           <Disclosure
+            v-if="localeOptions.length > 0"
             v-slot="{ open }"
             as="div"
             class="border-dashed border w-1/3 border-gray-200 px-4 py-6 mx-auto my-auto overflow-y-scroll mt-5 max-h-96"
@@ -84,7 +85,7 @@
             <DisclosurePanel class="pt-6 w-32 mx-auto">
               <div class="space-y-6">
                 <div
-                  v-for="(option, optionIdx) in localeFilters"
+                  v-for="(option, optionIdx) in localeOptions"
                   :key="option.value"
                   class="flex items-center"
                 >
@@ -158,7 +159,6 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/vue'
-import { LOCALE_DATA, Locale } from '@packages/data-context/src/actions/LocaleOptions'
 const { setMajorVersionWelcomeDismissed } = usePromptManager()
 const { t } = useI18n()
 const isTestingTypeModalOpen = ref(false)
@@ -182,6 +182,10 @@ fragment MainLaunchpadQueryData on Query {
   currentProject {
     id
     initLocales
+    initLocaleOptions {
+      locale
+      language
+    }
     isCTConfigured
     isE2EConfigured
     isLoadingConfigFile
@@ -284,35 +288,39 @@ const shouldShowWelcome = computed(() => {
 
 const videoHtml = computed(() => query.data.value?.videoEmbedHtml || '')
 
-const localeFilters = computed(() => {
+const localeOptions = computed(() => {
   let currentCheckedLocales: string[] = []
   const queryInitLocales = query.data.value?.currentProject?.initLocales
+
+  const allLocales = query.data.value?.currentProject?.initLocaleOptions || []
 
   if (queryInitLocales) {
     currentCheckedLocales = queryInitLocales.split(' ')
   }
 
-  return Object.keys(LOCALE_DATA).map((locale) => {
+  return allLocales.map((item) => {
     return {
-      value: locale,
-      label: LOCALE_DATA[locale].language,
-      checked: currentCheckedLocales.indexOf(locale) !== -1,
+      value: item?.locale,
+      label: item?.language,
+      checked: currentCheckedLocales.indexOf(item?.locale as string) !== -1,
     }
   })
 })
 
 const handleChange = (e) => {
-  const _initLocales = query.data.value?.currentProject?.initLocales?.split(' ') as Locale[]
+  const _initLocales = query.data.value?.currentProject?.initLocales?.split(' ') || []
+
+  const allLocales = query.data.value?.currentProject?.initLocaleOptions || []
 
   if (e.target.checked) {
     _initLocales.push(e.target.value)
     localesMutation.executeMutation({ initLocales: _initLocales.join(' ') }).then(() => {
-      toast.success(`Add ${LOCALE_DATA[e.target.value].language} ${e.target.value}`, { timeout: 1500 })
+      toast.success(`Add ${allLocales.find((i) => i?.locale === e.target.value)?.language} ${e.target.value}`, { timeout: 1500 })
     })
   } else {
     _initLocales.splice(_initLocales.indexOf(e.target.value), 1)
     localesMutation.executeMutation({ initLocales: _initLocales.join(' ') }).then(() => {
-      toast.warning(`Delete ${LOCALE_DATA[e.target.value].language} ${e.target.value}`, { timeout: 1500 })
+      toast.warning(`Delete ${allLocales.find((i) => i?.locale === e.target.value)?.language} ${e.target.value}`, { timeout: 1500 })
     })
   }
 }

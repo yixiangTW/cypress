@@ -2852,6 +2852,11 @@ declare namespace Cypress {
   }
 
   interface ResolvedConfigOptions<ComponentDevServerOpts = any> {
+    initLocaleOptions: {
+      locale: string;
+      language: string;
+    }[] | null
+
     initLocales: string | null
     /**
      * Url used as prefix for [cy.visit()](https://on.cypress.io/visit) or [cy.request()](https://on.cypress.io/request) command's url

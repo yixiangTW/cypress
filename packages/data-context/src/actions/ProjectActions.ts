@@ -156,6 +156,10 @@ export class ProjectActions {
     await this.ctx.lifecycleManager.setCurrentProject(projectRoot)
   }
 
+  setProjectInitLocaleOptions (initLocaleOptions: {locale: string, language: string}[]) {
+    this.ctx.coreData.initLocaleOptions = initLocaleOptions
+  }
+
   setProjectInitLocales (initLocales: string) {
     this.ctx.coreData.initLocales = initLocales
   }
@@ -169,11 +173,11 @@ export class ProjectActions {
     } catch {
       //
     }
-    const initLocales = config && JSON.parse(config).initLocales
-
-    return {
-      initLocales,
+    if (config) {
+      return JSON.parse(config)
     }
+
+    return {}
   }
   // Temporary: remove after other refactor lands
   async setCurrentProjectAndTestingTypeForTestSetup (projectRoot: string) {

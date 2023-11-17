@@ -1,5 +1,5 @@
 import { PACKAGE_MANAGERS } from '@packages/types'
-import { enumType, nonNull, objectType, stringArg } from 'nexus'
+import { enumType, nonNull, objectType, stringArg, list } from 'nexus'
 import path from 'path'
 import { BrowserStatusEnum, FileExtensionEnum } from '..'
 import { TestingTypeEnum } from '../enumTypes/gql-WizardEnums'
@@ -12,6 +12,14 @@ import { Spec } from './gql-Spec'
 export const PackageManagerEnum = enumType({
   name: 'PackageManagerEnum',
   members: PACKAGE_MANAGERS,
+})
+
+const InitLocaleOption = objectType({
+  name: 'InitLocaleOption',
+  definition (t) {
+    t.string('locale')
+    t.string('language')
+  },
 })
 
 export const CurrentProject = objectType({
@@ -36,6 +44,12 @@ export const CurrentProject = objectType({
 
     t.boolean('isFullConfigReady', {
       description: 'Whether or not the full config is ready',
+    })
+
+    t.field('initLocaleOptions', {
+      description: 'InitLocaleOptions',
+      type: list(InitLocaleOption),
+      resolve: (source, args, ctx) => ctx.coreData.initLocaleOptions,
     })
 
     t.string('initLocales', {

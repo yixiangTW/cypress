@@ -5,7 +5,7 @@ import path from 'path'
 import Debug from 'debug'
 import fs from 'fs-extra'
 import { exec } from 'child_process'
-import { LOCALE_DATA, Locale, SAMPLE_DATA } from './LocaleOptions'
+import { SAMPLE_DATA } from './LocaleOptions'
 
 const debug = Debug('cypress:data-context:wizard-actions')
 
@@ -188,9 +188,10 @@ export class WizardActions {
 
   private setInitLocalesList () {
     const configLocales = this.ctx.coreData.initLocales
+    const initLocaleOptions = this.ctx.coreData.initLocaleOptions
 
-    if (configLocales) {
-      return Object.keys(LOCALE_DATA).filter((locale) => configLocales.split(' ').includes(locale))
+    if (configLocales && initLocaleOptions) {
+      return initLocaleOptions.map((i) => i.locale).filter((locale) => configLocales.split(' ').includes(locale))
     }
 
     return []
@@ -208,8 +209,8 @@ export class WizardActions {
     if (initLocalesList && initLocalesList.length !== 0) {
       multiLanguageRealted = [
         this.scaffoldI10n(),
-        ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages', locale as Locale)),
-        ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages/SampleProduct/1.0.0/SampleComponent', locale as Locale)),
+        ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages', locale)),
+        ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages/SampleProduct/1.0.0/SampleComponent', locale)),
         this.scaffoldSh(),
         this.scaffoldBat(),
       ]
@@ -244,14 +245,15 @@ export class WizardActions {
     return scaffoldedFiles
   }
 
-  private async scaffoldTranslationResource (sourcePath: string, fileName: Locale): Promise<NexusGenObjects['ScaffoldedFile']> {
+  private async scaffoldTranslationResource (sourcePath: string, fileName: string): Promise<NexusGenObjects['ScaffoldedFile']> {
     const supportFile = path.join(this.projectRoot, `cypress/${sourcePath}/${fileName}.json`)
     const supportDir = path.dirname(supportFile)
+    const initLocaleOptions = this.ctx.coreData.initLocaleOptions
 
     // @ts-ignore
     await this.ctx.fs.mkdir(supportDir, { recursive: true })
 
-    let fileContent = sourcePath.indexOf('SampleComponent') !== -1 ? `${JSON.stringify(SAMPLE_DATA[fileName], null, 2)}\n` : `${JSON.stringify(LOCALE_DATA[fileName], null, 2)}\n`
+    let fileContent = sourcePath.indexOf('SampleComponent') !== -1 ? `${JSON.stringify(SAMPLE_DATA['zh-Hans'], null, 2)}\n` : `${JSON.stringify(initLocaleOptions?.find((i) => i.locale === fileName), null, 2)}\n`
     let description = ''
 
     await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')

@@ -352,10 +352,14 @@ export const mutation = mutationType({
       },
       resolve: async (_, args, ctx) => {
         await ctx.actions.project.setCurrentProject(args.path)
-        const { initLocales } = await ctx.actions.project.loadFromI10nConfig(args.path)
+        const { initLocales, initLocaleOptions } = await ctx.actions.project.loadFromI10nConfig(args.path)
 
         if (initLocales && initLocales.length > 0) {
           await ctx.actions.project.setProjectInitLocales(initLocales.join(' '))
+        }
+
+        if (initLocaleOptions && initLocaleOptions.length > 0) {
+          ctx.actions.project.setProjectInitLocaleOptions(initLocaleOptions)
         }
 
         return {}
