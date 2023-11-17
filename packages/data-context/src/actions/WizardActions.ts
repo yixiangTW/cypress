@@ -193,7 +193,7 @@ export class WizardActions {
       return Object.keys(LOCALE_DATA).filter((locale) => configLocales.split(' ').includes(locale))
     }
 
-    return Object.keys(LOCALE_DATA)
+    return []
   }
 
   private setDefaultLocale () {
@@ -203,16 +203,24 @@ export class WizardActions {
   private async scaffoldE2E () {
     const initLocalesList = this.setInitLocalesList()
     // Order of the scaffoldedFiles is intentional, confirm before changing
+    let multiLanguageRealted: Promise<NexusGenObjects['ScaffoldedFile']>[] = []
+
+    if (initLocalesList && initLocalesList.length !== 0) {
+      multiLanguageRealted = [
+        this.scaffoldI10n(),
+        ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages', locale as Locale)),
+        ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages/SampleProduct/1.0.0/SampleComponent', locale as Locale)),
+        this.scaffoldSh(),
+        this.scaffoldBat(),
+      ]
+    }
+
     const scaffoldedFiles = await Promise.all([
       this.scaffoldConfig('e2e'),
       this.scaffoldSupport('e2e', this.ctx.lifecycleManager.fileExtensionToUse),
       this.scaffoldSupport('commands', this.ctx.lifecycleManager.fileExtensionToUse),
       this.scaffoldFixtures(),
-      this.scaffoldI10n(),
-      ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages', locale as Locale)),
-      ...initLocalesList.map((locale) => this.scaffoldTranslationResource('common-messages/SampleProduct/1.0.0/SampleComponent', locale as Locale)),
-      this.scaffoldSh(),
-      this.scaffoldBat(),
+      ...multiLanguageRealted,
     ])
 
     return scaffoldedFiles
@@ -332,7 +340,7 @@ export class WizardActions {
     let description: string = ''
 
     if (fileName === 'commands') {
-      fileContent = commandsFileBody(language)
+      fileContent = commandsFileBody(language, this.setInitLocalesList().length > 0)
       description = 'A support file that is useful for creating custom Cypress commands and overwriting existing ones.'
     } else if (fileName === 'e2e') {
       fileContent = supportFileE2E(language)

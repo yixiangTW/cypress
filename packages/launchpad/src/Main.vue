@@ -158,8 +158,7 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/vue'
-
-import { LOCALE_DATA } from '@packages/data-context/src/actions/LocaleOptions'
+import { LOCALE_DATA, Locale } from '@packages/data-context/src/actions/LocaleOptions'
 const { setMajorVersionWelcomeDismissed } = usePromptManager()
 const { t } = useI18n()
 const isTestingTypeModalOpen = ref(false)
@@ -287,11 +286,10 @@ const videoHtml = computed(() => query.data.value?.videoEmbedHtml || '')
 
 const localeFilters = computed(() => {
   let currentCheckedLocales: string[] = []
+  const queryInitLocales = query.data.value?.currentProject?.initLocales
 
-  if (query.data.value?.currentProject?.initLocales) {
-    currentCheckedLocales = query.data.value?.currentProject?.initLocales.split(' ')
-  } else {
-    currentCheckedLocales = Object.keys(LOCALE_DATA)
+  if (queryInitLocales) {
+    currentCheckedLocales = queryInitLocales.split(' ')
   }
 
   return Object.keys(LOCALE_DATA).map((locale) => {
@@ -304,7 +302,7 @@ const localeFilters = computed(() => {
 })
 
 const handleChange = (e) => {
-  const _initLocales = query.data.value?.currentProject?.initLocales?.split(' ') || Object.keys(LOCALE_DATA)
+  const _initLocales = query.data.value?.currentProject?.initLocales?.split(' ') as Locale[]
 
   if (e.target.checked) {
     _initLocales.push(e.target.value)

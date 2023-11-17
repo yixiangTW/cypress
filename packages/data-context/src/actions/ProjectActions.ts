@@ -160,6 +160,21 @@ export class ProjectActions {
     this.ctx.coreData.initLocales = initLocales
   }
 
+  async loadFromI10nConfig (projectPath: string) {
+    const supportFile = path.join(projectPath, `i10n.config.json`)
+    let config: any = '{}'
+
+    try {
+      config = await this.ctx.fs.readFile(supportFile, 'utf8')
+    } catch {
+      //
+    }
+    const initLocales = config && JSON.parse(config).initLocales
+
+    return {
+      initLocales,
+    }
+  }
   // Temporary: remove after other refactor lands
   async setCurrentProjectAndTestingTypeForTestSetup (projectRoot: string) {
     await this.ctx.lifecycleManager.clearCurrentProject()

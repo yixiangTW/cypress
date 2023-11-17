@@ -12,14 +12,18 @@ import assert from 'assert'
  *   }
  * }
  */
-export function addE2EDefinition (defaultLocale: string): t.ObjectProperty {
+export function addE2EDefinition (defaultLocale?: string): t.ObjectProperty {
+  const multiLanguageRelated = defaultLocale ? `
+  env: {
+    locale: \'${defaultLocale.trim()}\',
+    superString: 'あア１ａ中鷗屢简ÖÜß體₩겨ㅊĐứсηñçüÜÓÇÁÑ¿¡n°€',
+  },
+  ` : ''
+
   return extractProperty(`
     const toMerge = {
       e2e: {
-        env: {
-          locale: \'${defaultLocale.trim()}\',
-          superString: 'あア１ａ中鷗屢简ÖÜß體₩겨ㅊĐứсηñçüÜÓÇÁÑ¿¡n°€',
-        },
+        ${multiLanguageRelated}
         setupNodeEvents(on, config) {
           // implement node event listeners here
         },

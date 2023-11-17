@@ -81,6 +81,7 @@
         </template>
       </SpecRunnerDropdown>
       <SpecRunnerDropdown
+        v-if="Object.keys(renderLocaleList).length !== 0"
         variant="panel"
         data-cy="viewport"
       >
@@ -289,7 +290,7 @@ const renderLocaleList = (() => {
     return _.pick(LOCALE_DATA, keys as Locale[])
   }
 
-  return LOCALE_DATA
+  return {}
 })()
 
 // Have to spread gql props since binding it to v-model causes error when testing
@@ -299,7 +300,7 @@ const defaultLocale = Object.keys(renderLocaleList)[0]
 
 const selectedLanguage = ref({
   locale: defaultLocale,
-  language: LOCALE_DATA[defaultLocale].language,
+  language: defaultLocale && LOCALE_DATA[defaultLocale].language,
 })
 
 const activeSpecPath = specStore.activeSpec?.absolute
