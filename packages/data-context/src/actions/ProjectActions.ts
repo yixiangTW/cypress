@@ -160,7 +160,7 @@ export class ProjectActions {
     this.ctx.coreData.initLocaleOptions = initLocaleOptions
   }
 
-  setProjectInitLocales (initLocales: string) {
+  setProjectInitLocales (initLocales: string[]) {
     this.ctx.coreData.initLocales = initLocales
   }
 

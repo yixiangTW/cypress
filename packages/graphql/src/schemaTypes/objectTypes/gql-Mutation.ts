@@ -354,11 +354,11 @@ export const mutation = mutationType({
         await ctx.actions.project.setCurrentProject(args.path)
         const { initLocales, initLocaleOptions } = await ctx.actions.project.loadFromI10nConfig(args.path)
 
-        if (initLocales && initLocales.length > 0) {
-          await ctx.actions.project.setProjectInitLocales(initLocales.join(' '))
+        if (initLocales) {
+          await ctx.actions.project.setProjectInitLocales(initLocales)
         }
 
-        if (initLocaleOptions && initLocaleOptions.length > 0) {
+        if (initLocaleOptions) {
           ctx.actions.project.setProjectInitLocaleOptions(initLocaleOptions)
         }
 
@@ -370,7 +370,7 @@ export const mutation = mutationType({
       type: Query,
       description: 'Set initLocales to run tests on',
       args: {
-        initLocales: nonNull(stringArg()),
+        initLocales: nonNull(list(nonNull(stringArg()))),
       },
       async resolve (_, args, ctx) {
         await ctx.actions.project.setProjectInitLocales(args.initLocales)

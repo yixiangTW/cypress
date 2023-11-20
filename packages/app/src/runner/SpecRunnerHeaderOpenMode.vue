@@ -81,7 +81,7 @@
         </template>
       </SpecRunnerDropdown>
       <SpecRunnerDropdown
-        v-if="Object.keys(renderLocaleList).length !== 0"
+        v-if="renderLocaleList.length > 0"
         variant="panel"
         data-cy="viewport"
       >
@@ -97,14 +97,14 @@
         <template #default>
           <div class="max-h-50vw p-[12px] pt-5 text-gray-700 leading-5 w-[346px] overflow-auto">
             <div
-              v-for="(value, key) in renderLocaleList"
+              v-for="(item, key) in renderLocaleList"
               :key="key"
               class="inline-flex mr-1 mt-3 cursor-pointer"
-              @click="changeLanguage({locale: key, language: value.language})"
+              @click="changeLanguage(item)"
             >
               <status-badge
-                :status="key === selectedLanguage.locale"
-                :title="value?.language"
+                :status="item?.locale === selectedLanguage.locale"
+                :title="item?.language"
               />
             </div>
           </div>
@@ -285,33 +285,23 @@ const selectorPlaygroundStore = useSelectorPlaygroundStore()
 
 const togglePlayground = () => _togglePlayground(autIframe)
 
-const renderLocaleList = (() => {
-  const ret = {}
+type LocaleType = {
+  locale: string
+  language: string
+}
 
-  if (props.gql.initLocales) {
-    const keys = props.gql.initLocales.split(' ')
-    const initLocaleOption = props.gql.initLocaleOptions || []
+const initLocales = computed(() => props.gql.initLocales || [])
 
-    initLocaleOption?.filter((i) => keys.indexOf(i?.locale as string) !== -1).map((i) => {
-      ret[i?.locale as string] = {
-        locale: i?.locale,
-        language: i?.language,
-      }
-    })
-  }
+const initLocaleOptions = computed(() => props.gql.initLocaleOptions || [])
 
-  return ret
-})()
+const renderLocaleList = computed(() => {
+  return initLocaleOptions.value.filter((localeOption) => initLocales.value.indexOf(localeOption?.locale as string) !== -1)
+})
 
 // Have to spread gql props since binding it to v-model causes error when testing
 const selectedBrowser = ref({ ...props.gql.activeBrowser })
 
-const defaultLocale = Object.keys(renderLocaleList)[0]
-
-const selectedLanguage = ref({
-  locale: defaultLocale,
-  language: defaultLocale && props.gql.initLocaleOptions?.find((i) => i?.locale === defaultLocale)?.language,
-})
+const selectedLanguage = ref(renderLocaleList.value[0] || {} as LocaleType)
 
 const activeSpecPath = specStore.activeSpec?.absolute
 

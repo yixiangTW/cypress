@@ -1025,7 +1025,7 @@ type CurrentProject implements Node & ProjectLike {
   initLocaleOptions: [InitLocaleOption]
 
   """InitLocales"""
-  initLocales: String
+  initLocales: [String]
 
   """Whether the user configured this project to use Component Testing"""
   isCTConfigured: Boolean
@@ -1828,7 +1828,7 @@ type Mutation {
   setProjectIdInConfigFile(projectId: String!): Query
 
   """Set initLocales to run tests on"""
-  setProjectInitLocales(initLocales: String!): Query!
+  setProjectInitLocales(initLocales: [String!]!): Query!
 
   """
   Save the projects preferences to cache, e.g. in dev: Library/Application Support/Cypress/cy/staging/cache

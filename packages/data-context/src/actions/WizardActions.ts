@@ -187,11 +187,11 @@ export class WizardActions {
   }
 
   private setInitLocalesList () {
-    const configLocales = this.ctx.coreData.initLocales
+    const initLocales = this.ctx.coreData.initLocales
     const initLocaleOptions = this.ctx.coreData.initLocaleOptions
 
-    if (configLocales && initLocaleOptions) {
-      return initLocaleOptions.map((i) => i.locale).filter((locale) => configLocales.split(' ').includes(locale))
+    if (initLocales && initLocaleOptions) {
+      return initLocaleOptions.map((i) => i.locale).filter((locale) => initLocales.includes(locale))
     }
 
     return []

@@ -147,7 +147,7 @@ interface InitLocaleOption {
 
 export interface CoreDataShape {
   initLocaleOptions: InitLocaleOption[] | null
-  initLocales: string | null
+  initLocales: string[] | null
   cliBrowser: string | null
   cliTestingType: string | null
   activeBrowser: FoundBrowser | null

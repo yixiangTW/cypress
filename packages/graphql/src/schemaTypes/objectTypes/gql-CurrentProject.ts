@@ -52,8 +52,9 @@ export const CurrentProject = objectType({
       resolve: (source, args, ctx) => ctx.coreData.initLocaleOptions,
     })
 
-    t.string('initLocales', {
+    t.field('initLocales', {
       description: 'InitLocales',
+      type: list('String'),
       resolve: (source, args, ctx) => ctx.coreData.initLocales,
     })
 

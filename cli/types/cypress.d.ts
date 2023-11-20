@@ -2857,7 +2857,7 @@ declare namespace Cypress {
       language: string;
     }[] | null
 
-    initLocales: string | null
+    initLocales: string[] | null
     /**
      * Url used as prefix for [cy.visit()](https://on.cypress.io/visit) or [cy.request()](https://on.cypress.io/request) command's url
      * @default null

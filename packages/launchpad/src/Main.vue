@@ -86,7 +86,7 @@
               <div class="space-y-6">
                 <div
                   v-for="(option, optionIdx) in localeOptions"
-                  :key="option.value"
+                  :key="optionIdx"
                   class="flex items-center"
                 >
                   <input
@@ -234,7 +234,7 @@ mutation Main_LaunchProject ($testingType: TestingTypeEnum!)  {
 `
 
 gql`
-mutation Main_ResetInitLocales($initLocales: String!) {
+mutation Main_ResetInitLocales($initLocales: [String!]!) {
   setProjectInitLocales(initLocales: $initLocales) {
     ...MainLaunchpadQueryData
   }
@@ -288,38 +288,37 @@ const shouldShowWelcome = computed(() => {
 
 const videoHtml = computed(() => query.data.value?.videoEmbedHtml || '')
 
+const initlocales = computed(() => query.data.value?.currentProject?.initLocales || [])
+
+const initLocaleOptions = computed(() => query.data.value?.currentProject?.initLocaleOptions || [])
+
 const localeOptions = computed(() => {
-  let currentCheckedLocales: string[] = []
-  const queryInitLocales = query.data.value?.currentProject?.initLocales
+  const queryInitLocales = initlocales.value
 
-  const allLocales = query.data.value?.currentProject?.initLocaleOptions || []
-
-  if (queryInitLocales) {
-    currentCheckedLocales = queryInitLocales.split(' ')
-  }
+  const allLocales = initLocaleOptions.value
 
   return allLocales.map((item) => {
     return {
       value: item?.locale,
       label: item?.language,
-      checked: currentCheckedLocales.indexOf(item?.locale as string) !== -1,
+      checked: queryInitLocales.indexOf(item?.locale as string) !== -1,
     }
   })
 })
 
 const handleChange = (e) => {
-  const _initLocales = query.data.value?.currentProject?.initLocales?.split(' ') || []
+  let _initLocales = initlocales.value
 
-  const allLocales = query.data.value?.currentProject?.initLocaleOptions || []
+  const allLocales = initLocaleOptions.value
 
   if (e.target.checked) {
-    _initLocales.push(e.target.value)
-    localesMutation.executeMutation({ initLocales: _initLocales.join(' ') }).then(() => {
+    _initLocales = _initLocales.concat(e.target.value)
+    localesMutation.executeMutation({ initLocales: _initLocales as string[] }).then(() => {
       toast.success(`Add ${allLocales.find((i) => i?.locale === e.target.value)?.language} ${e.target.value}`, { timeout: 1500 })
     })
   } else {
-    _initLocales.splice(_initLocales.indexOf(e.target.value), 1)
-    localesMutation.executeMutation({ initLocales: _initLocales.join(' ') }).then(() => {
+    _initLocales = _initLocales.filter((i) => i !== e.target.value)
+    localesMutation.executeMutation({ initLocales: _initLocales as string[] }).then(() => {
       toast.warning(`Delete ${allLocales.find((i) => i?.locale === e.target.value)?.language} ${e.target.value}`, { timeout: 1500 })
     })
   }
