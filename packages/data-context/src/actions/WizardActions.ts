@@ -5,7 +5,6 @@ import path from 'path'
 import Debug from 'debug'
 import fs from 'fs-extra'
 import { exec } from 'child_process'
-import { SAMPLE_DATA } from './LocaleOptions'
 
 const debug = Debug('cypress:data-context:wizard-actions')
 
@@ -253,7 +252,7 @@ export class WizardActions {
     // @ts-ignore
     await this.ctx.fs.mkdir(supportDir, { recursive: true })
 
-    let fileContent = sourcePath.indexOf('SampleComponent') !== -1 ? `${JSON.stringify(SAMPLE_DATA['zh-Hans'], null, 2)}\n` : `${JSON.stringify(initLocaleOptions?.find((i) => i.locale === fileName), null, 2)}\n`
+    let fileContent = sourcePath.indexOf('SampleComponent') !== -1 ? `${JSON.stringify(setTransMockData(fileName), null, 2)}\n` : `${JSON.stringify(initLocaleOptions?.find((i) => i.locale === fileName), null, 2)}\n`
     let description = ''
 
     await this.scaffoldFile(supportFile, fileContent, 'Scaffold default support file')
@@ -537,4 +536,10 @@ const I10N_DATA = `export const L10n = {
   }
 };`
 
+const setTransMockData = (locale: string) => {
+  return {
+    productName: `${locale} productName`,
+    copyright: `© 2022-2023 ${locale} copyright`,
+  }
+}
 const SH_DATE = (local: string) => `npx cypress run --env locale=${local}\n`

@@ -142,6 +142,7 @@ interface CloudDataShape {
 
 interface InitLocaleOption {
   locale: string
+  id: string
   language: string
 }
 

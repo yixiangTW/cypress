@@ -183,6 +183,7 @@ fragment MainLaunchpadQueryData on Query {
     id
     initLocales
     initLocaleOptions {
+      id
       locale
       language
     }

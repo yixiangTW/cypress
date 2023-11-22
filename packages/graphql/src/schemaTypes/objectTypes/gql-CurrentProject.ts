@@ -17,6 +17,7 @@ export const PackageManagerEnum = enumType({
 const InitLocaleOption = objectType({
   name: 'InitLocaleOption',
   definition (t) {
+    t.string('id')
     t.string('locale')
     t.string('language')
   },

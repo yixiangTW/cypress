@@ -359,7 +359,7 @@ export const mutation = mutationType({
         }
 
         if (initLocaleOptions) {
-          ctx.actions.project.setProjectInitLocaleOptions(initLocaleOptions)
+          ctx.actions.project.setProjectInitLocaleOptions(initLocaleOptions.map((i) => ({ ...i, id: i.locale })))
         }
 
         return {}

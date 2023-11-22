@@ -1415,6 +1415,7 @@ type GlobalProject implements Node & ProjectLike {
 }
 
 type InitLocaleOption {
+  id: String
   language: String
   locale: String
 }

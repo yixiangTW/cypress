@@ -2854,6 +2854,7 @@ declare namespace Cypress {
   interface ResolvedConfigOptions<ComponentDevServerOpts = any> {
     initLocaleOptions: {
       locale: string;
+      id: string;
       language: string;
     }[] | null
 

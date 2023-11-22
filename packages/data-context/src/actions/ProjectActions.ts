@@ -1,5 +1,5 @@
 import type { MutationSetProjectPreferencesInGlobalCacheArgs } from '@packages/graphql/src/gen/nxs.gen'
-import { InitializeProjectOptions, FoundBrowser, OpenProjectLaunchOptions, Preferences, TestingType, ReceivedCypressOptions, AddProject, FullConfig, AllowedState, SpecWithRelativeRoot, OpenProjectLaunchOpts, RUN_ALL_SPECS, RUN_ALL_SPECS_KEY } from '@packages/types'
+import { InitializeProjectOptions, FoundBrowser, OpenProjectLaunchOptions, Preferences, TestingType, ReceivedCypressOptions, AddProject, FullConfig, AllowedState, SpecWithRelativeRoot, OpenProjectLaunchOpts, RUN_ALL_SPECS, RUN_ALL_SPECS_KEY, InitLocaleOptions } from '@packages/types'
 import type { EventEmitter } from 'events'
 import execa from 'execa'
 import path from 'path'
@@ -156,7 +156,7 @@ export class ProjectActions {
     await this.ctx.lifecycleManager.setCurrentProject(projectRoot)
   }
 
-  setProjectInitLocaleOptions (initLocaleOptions: {locale: string, language: string}[]) {
+  setProjectInitLocaleOptions (initLocaleOptions: InitLocaleOptions[]) {
     this.ctx.coreData.initLocaleOptions = initLocaleOptions
   }
 
@@ -174,10 +174,15 @@ export class ProjectActions {
       //
     }
     if (config) {
-      return JSON.parse(config)
+      const _config: { initLocaleOptions: InitLocaleOptions[] | null, initLocales: string[] | null } = JSON.parse(config)
+
+      return _config
     }
 
-    return {}
+    return {
+      initLocaleOptions: null,
+      initLocales: null,
+    }
   }
   // Temporary: remove after other refactor lands
   async setCurrentProjectAndTestingTypeForTestSetup (projectRoot: string) {
