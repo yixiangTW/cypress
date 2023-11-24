@@ -164,6 +164,18 @@ export class ProjectActions {
     this.ctx.coreData.initLocales = initLocales
   }
 
+  async setProjectI10nConfig (initLocales: string[], projectPath: string | null) {
+    if (!projectPath) {
+      return
+    }
+
+    const supportFile = path.join(projectPath, `i10n.config.json`)
+    const config = await this.loadFromI10nConfig(projectPath)
+
+    config.initLocales = initLocales
+    await this.ctx.fs.writeFile(supportFile, JSON.stringify(config, null, 2))
+  }
+
   async loadFromI10nConfig (projectPath: string) {
     const supportFile = path.join(projectPath, `i10n.config.json`)
     let config: any = '{}'

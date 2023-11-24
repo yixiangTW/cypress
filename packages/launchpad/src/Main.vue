@@ -66,7 +66,7 @@
             />
           </button>
           <Disclosure
-            v-if="localeOptions.length > 0"
+            v-if="!currentProject?.isE2EConfigured && localeOptions.length > 0"
             v-slot="{ open }"
             as="div"
             class="border-dashed border w-1/3 border-gray-200 px-4 py-6 mx-auto my-auto overflow-y-scroll mt-5 max-h-96"

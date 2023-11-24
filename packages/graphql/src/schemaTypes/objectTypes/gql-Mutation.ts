@@ -354,13 +354,9 @@ export const mutation = mutationType({
         await ctx.actions.project.setCurrentProject(args.path)
         const { initLocales, initLocaleOptions } = await ctx.actions.project.loadFromI10nConfig(args.path)
 
-        if (initLocales) {
-          await ctx.actions.project.setProjectInitLocales(initLocales)
-        }
+        await ctx.actions.project.setProjectInitLocales(initLocales ? initLocales : [])
 
-        if (initLocaleOptions) {
-          ctx.actions.project.setProjectInitLocaleOptions(initLocaleOptions.map((i) => ({ ...i, id: i.locale })))
-        }
+        ctx.actions.project.setProjectInitLocaleOptions(initLocaleOptions ? initLocaleOptions.map((i) => ({ ...i, id: i.locale })) : [])
 
         return {}
       },
@@ -374,6 +370,7 @@ export const mutation = mutationType({
       },
       async resolve (_, args, ctx) {
         await ctx.actions.project.setProjectInitLocales(args.initLocales)
+        await ctx.actions.project.setProjectI10nConfig(args.initLocales, ctx.currentProject)
 
         return {}
       },

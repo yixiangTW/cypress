@@ -223,6 +223,7 @@ fragment SpecRunnerHeader on CurrentProject {
   id
   initLocales
   initLocaleOptions {
+    id
     locale
     language
   }
