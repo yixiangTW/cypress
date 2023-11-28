@@ -1,3 +1,5 @@
+# Getting Started
+
 ### Initialize
 
 Config I10n.config.json
@@ -32,23 +34,11 @@ Then:
 
 
 
-### New Directory
+### Automatically generated new directory
 Cypress will create modules related to multilingual features in your project.
-
-- `run.sh`
-An example that shows you how to run Cypress in different languages using the command line.
-```
-npx cypress run --env locale=zh-Hans
-```
-
-
-- `run.bat`
-An example that shows you how to run Cypress in different languages using the command line.
-
-
-
 - `cypress.config.js`
 Environment variables related to multilingual support will be generated.
+the locale parameter defaults to the first item in initLocales
 ```javascript
 env: {
   locale: "zh-Hans",
@@ -56,19 +46,16 @@ env: {
 }
 ```
 
-
-- cypress/common-message/*.json
-Common translation
+- `cypress/common-message/*.json`
+Common translation, eg: zh-Hans.json, abc.json
 ```json
 {
   "locale": "zh-Hans",
   "language": "简体中文"
 }
 ```
-
-
-- cypress/common-message/SampleProduct/1.0.0/SampleComponet/*.json
-Special translation
+- `cypress/common-message/SampleProduct/1.0.0/SampleComponet/*.json`
+Special translation Sample, according to your needs, you can create this directory yourself. The directory structure should follow /productName/version/featureName/xxx.json format. Currently, only JSON files are supported
 ```json
 {
   "productName": "productName",
@@ -76,7 +63,8 @@ Special translation
 }
 ```
 
-- cypress/i10n
+
+- `cypress/i10n`
 Provides methods to load translation resources
 ```javascript
 export const L10n = {
@@ -107,10 +95,28 @@ export const L10n = {
 };
 
 ```
+Here is an example of usage
+```javascript
+const t = commonMsg('zh-Hans')
+cy.wrap(t('language')).should('eq', '简体中文')
+
+// These three parameters represent the three-tier directory structure corresponding to the special translation file
+const t = specialMsg('SampleProduct', '1.0.0', 'SampleComponet', 'en') 
+cy.wrap(t('productName')).should('eq', 'productName')
+```
 
 
+- `run.sh`
+An example that shows you how to run Cypress in different languages using the command line.
+```
+npx cypress run --env locale=zh-Hans
+```
 
-- cypress/support/commands.js
+
+- `run.bat`
+An example that shows you how to run Cypress in different languages using the command line.
+
+- `cypress/support/commands.js`
 Created a global method to get the current locale
 ```javascript
 Cypress.Commands.add('getLocal', () => {
@@ -126,8 +132,9 @@ Cypress.Commands.add('getLocal', () => {
 
 ### Write Test
 
-This is a test demo on multiple languages
+This is a complete demo showing how to perform multilingual testing
 ```javascript
+// spec.cy.js
 import { L10n } from '../i10n'
 
 const languageDropDown = {
