@@ -55,7 +55,7 @@ Common translation, eg: zh-Hans.json, abc.json
 }
 ```
 - `cypress/common-message/SampleProduct/1.0.0/SampleComponet/*.json`
-Special translation Sample, according to your needs, you can create this directory yourself. The directory structure should follow /productName/version/featureName/xxx.json format. Currently, only JSON files are supported
+Special translation Sample, eg: zh-Hans.json, abc.json, according to your needs, you can create this directory yourself. The directory structure should follow /productName/version/featureName/xxx.json format. Currently, only JSON files are supported
 ```json
 {
   "productName": "productName",
@@ -144,7 +144,7 @@ const languageDropDown = {
 
 const verifyLocale = (locale) => {
   if (locale) {
-    cy.log(`Curren locale is：${locale}`);
+    cy.log(`Current locale is：${locale}`);
     const t = L10n.commonMsg(locale)
     // const t = L10n.specialMsg('SampleProduct', '1.0.0', 'SampleComponent', locale)
     const url = 'https://console-stg.cloud.vmware.com/csp/gateway/discovery'
